@@ -35,3 +35,26 @@ func (sm *AnyMap[K, V]) Range(f func(key K, value V) bool) {
 		return f(key.(K), value.(V))
 	})
 }
+
+func (sm *AnyMap[K, V]) LoadOrStore(key K, value V) (V, bool) {
+	val, loaded := sm.m.LoadOrStore(key, value)
+	return val.(V), loaded
+}
+
+func (sm *AnyMap[K, V]) LoadAndDelete(key K) (V, bool) {
+	val, loaded := sm.m.LoadAndDelete(key)
+	if loaded {
+		return val.(V), true
+	}
+	var zeroValue V
+	return zeroValue, false
+}
+
+func (sm *AnyMap[K, V]) Len() int {
+	count := 0
+	sm.m.Range(func(_, _ any) bool {
+		count++
+		return true
+	})
+	return count
+}
